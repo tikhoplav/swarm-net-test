@@ -18,8 +18,7 @@ func main() {
 		html = append(html, fmt.Sprintf("<p>Current container time: %v<br>", time.Now()))
 		html = append(html, "<i>(if not changed after reload, then this page is cached)</i></p>")
 		html = append(html, fmt.Sprintf("<p>Container id: <b>%v</b><br>", DockerId()))
-		html = append(html, "<i>(this id is the same as in `docker ps`)</i><br>")
-		html = append(html, "<i>(Also this id can be found running `docker node ps $node-name`)</i></p>")
+		html = append(html, "<i>(this id is the same as in `docker ps`)</i></p>")
 		html = append(html, "</body></html>")
 
 		w.Write([]byte(strings.Join(html, "\n")))
@@ -30,10 +29,13 @@ func main() {
 }
 
 func DockerId() string {
-	cont, err := ioutil.ReadFile("/proc/self/cgroup")
+	cont, err := ioutil.ReadFile("/proc/self/cpuset")
 	if err != nil {
-		return "not a docker container"
+		return "not a docker container?"
 	}
 
-	return fmt.Sprintf("%s", cont[20:31])
+	s := fmt.Sprintf("%s", cont)
+	ss := strings.Split(s, "/")
+
+	return ss[2]
 }
